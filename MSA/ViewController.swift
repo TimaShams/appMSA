@@ -13,7 +13,6 @@ struct myList: Decodable {
     let list: [Book]
 }
 
-
 struct Book: Decodable {
     let kind: String
     let id: String
@@ -35,26 +34,28 @@ struct imageLinksDecode: Decodable {
 class ViewController: UIViewController {
     
 
-    
-
     @IBOutlet weak var allBooksTable: UITableView!
     
     var bookList:myList? = nil {
     didSet {
-          allBooksTable.reloadData()
+        
+        DispatchQueue.main.async {
+            self.allBooksTable.reloadData()
+        }
        }
     }
 
+    let baseURL = "https://ipvefa0rg0.execute-api.us-east-1.amazonaws.com/dev/books?lang=fr&term=the+power+of"
+    
+    // fetch 15 items for each batch
 
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.allBooksTable.dataSource = self
         self.allBooksTable.delegate = self
 
-        
-        
-        let url = URL(string: "https://ipvefa0rg0.execute-api.us-east-1.amazonaws.com/dev/books?lang=fr&term=self")!
+        let url = URL(string: baseURL)!
         var request = URLRequest(url: url)
         
         request.setValue(
@@ -75,9 +76,10 @@ class ViewController: UIViewController {
                     let decodedData = try JSONDecoder().decode(myList.self,
                                                                from: data)
                     
+                    DispatchQueue.main.async {
+                       self.bookList = decodedData
+                     }
                     
-                    self.bookList = decodedData
-                    print("user: ", decodedData.list[0].imageLinks.thumbnail)
 
                     print("===================================")
                 } catch let DecodingError.dataCorrupted(context) {
@@ -101,9 +103,7 @@ class ViewController: UIViewController {
         
         
         task.resume()
-                
-        
-        // Do any additional setup after loading the view.
+                        
     }
     
 
@@ -124,34 +124,26 @@ extension ViewController: UITableViewDataSource , UITableViewDelegate {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "myCell") as! bookTableViewCell
                 cell.bookName.text = bookList?.list[indexPath.row].title
         if bookList?.list[indexPath.row].imageLinks.smallThumbnail != nil{
-            
-            
-            //cell.img.load(url: (bookList?.list[indexPath.row].imageLinks.smallThumbnail)!)
-            print((bookList?.list[indexPath.row].imageLinks.smallThumbnail)!)
-           cell.img.downloaded(from: (bookList?.list[indexPath.row].imageLinks.smallThumbnail)!)
+        cell.img.downloaded(from: (bookList?.list[indexPath.row].imageLinks.smallThumbnail)!)
             
         }
 
                 return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let newVC = storyboard.instantiateViewController(withIdentifier: "DetailsViewController") as! DetailsViewController
+        newVC.book = (bookList?.list[indexPath.row])!
+        self.show(newVC, sender: self)
+
+    }
+    
+    
+
+    
 }
-
-//extension UIImageView {
-//
-//    func load(url: URL) {
-//        DispatchQueue.global().async { [weak self] in
-//            if let data = try? Data(contentsOf: url) {
-//                if let image = UIImage(data: data) {
-//                    DispatchQueue.main.async {
-//                        self?.image = image
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}// extention
-
 
 
 extension UIImageView {

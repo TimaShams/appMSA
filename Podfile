@@ -8,5 +8,7 @@ target 'MSA' do
   # Pods for MSA
   pod 'SwiftyJSON'
   pod 'Alamofire'
+  pod 'FoldingCell'
+
 
 end

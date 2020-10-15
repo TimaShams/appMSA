@@ -1,20 +1,24 @@
 PODS:
   - Alamofire (5.2.2)
+  - FoldingCell (5.0.2)
   - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
   - Alamofire
+  - FoldingCell
   - SwiftyJSON
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - FoldingCell
     - SwiftyJSON
 
 SPEC CHECKSUMS:
   Alamofire: 814429acc853c6c54ff123fc3d2ef66803823ce0
+  FoldingCell: f92eb5fb9842319e7cd08c71533c98408b785099
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: d2937156dde0fe1c2f5fb83e7828634772a82455
+PODFILE CHECKSUM: a5f22b8f341197263145cf27b55335a77768c88a
 
 COCOAPODS: 1.9.3
