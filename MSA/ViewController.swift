@@ -19,7 +19,7 @@ struct Book: Decodable {
     let etag: String
     let selfLink: String
     let title: String
-    let publishedDate: String
+    let publishedDate: String?
     let description: String?
     let pageCount: Int?
     let imageLinks: imageLinksDecode
@@ -34,6 +34,9 @@ struct imageLinksDecode: Decodable {
 class ViewController: UIViewController {
     
 
+    @IBOutlet weak var collection: UICollectionView!
+    
+    
     @IBOutlet weak var allBooksTable: UITableView!
     
     var bookList:myList? = nil {
@@ -45,16 +48,67 @@ class ViewController: UIViewController {
        }
     }
 
-    let baseURL = "https://ipvefa0rg0.execute-api.us-east-1.amazonaws.com/dev/books?lang=fr&term=the+power+of"
-    
+
     // fetch 15 items for each batch
 
+    @IBOutlet weak var langOptions: UISegmentedControl!
+    
+    var language = "au"
+    
+    var keywords = "power"
+
+    @IBAction func langSelected(_ sender: UISegmentedControl) {
+        
+        if(langOptions.selectedSegmentIndex==0){
+            
+            language = "au"
+        }
+        
+        if(langOptions.selectedSegmentIndex==1){
+            
+            language = "fr"
+            
+        }
+        
+        apiCall()
+        allBooksTable.reloadData()
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+ 
+
+        self.collection.delegate = self
+        self.collection.dataSource = self
         self.allBooksTable.dataSource = self
         self.allBooksTable.delegate = self
+        apiCall()
 
+                        
+    }
+    
+    @IBOutlet weak var searchText: UITextField!
+    @IBAction func search(_ sender: Any) {
+        
+        
+        if(searchText != nil )
+        {
+            
+            keywords =  (searchText.text?.replacingOccurrences(of: " ", with: "+"))!
+
+            apiCall()
+            allBooksTable.reloadData()
+        }
+        
+    }
+    
+    
+    func apiCall(){
+        
+        let baseURL = "https://ipvefa0rg0.execute-api.us-east-1.amazonaws.com/dev/books?lang="+self.language+"&term="+keywords
+        print(baseURL)
+        
         let url = URL(string: baseURL)!
         var request = URLRequest(url: url)
         
@@ -103,13 +157,37 @@ class ViewController: UIViewController {
         
         
         task.resume()
-                        
+        
+        
+        
+        
     }
-    
-
 
 }
 
+extension ViewController: UICollectionViewDelegate , UICollectionViewDataSource , UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 10
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as! BooksCollectionViewCell
+    
+        // Configure the cell
+        // 3
+        cell.backgroundColor = .orange
+    
+        return cell
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 160, height: 250)
+    }
+    
+        
+}
 
 extension ViewController: UITableViewDataSource , UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -135,7 +213,7 @@ extension ViewController: UITableViewDataSource , UITableViewDelegate {
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let newVC = storyboard.instantiateViewController(withIdentifier: "DetailsViewController") as! DetailsViewController
-        newVC.book = (bookList?.list[indexPath.row])!
+        newVC.book = [(bookList?.list[indexPath.row])!]
         self.show(newVC, sender: self)
 
     }
@@ -166,3 +244,4 @@ extension UIImageView {
         downloaded(from: url, contentMode: mode)
     }
 }
+
