@@ -8,7 +8,7 @@
 
 import UIKit
 
-class bookTableViewCell: UITableViewCell {
+class SearchTableViewCell: UITableViewCell {
 
     
     @IBOutlet weak var img: UIImageView!
